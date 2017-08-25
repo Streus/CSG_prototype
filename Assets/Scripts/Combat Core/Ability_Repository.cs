@@ -13,6 +13,7 @@ public partial class Ability
 		repository = new Dictionary<string, Ability> ();
 		repository.Add ("Sleep Dart", new Ability ("Sleep Dart", "Fire a sleep dart", "", 5f, "sleepShoot", "checkNumSleepDarts"));
 		repository.Add ("Interact", new Ability ("Interact", "Hack something.", "", 1f, "interact"));
+		repository.Add ("Stun Gun", new Ability ("Stun Gun", "Stun a mofo.", "", 2f, "stun"));
 	}
 
 	/* Use Effects */
@@ -41,6 +42,13 @@ public partial class Ability
 		}
 		else
 			return false;
+		return true;
+	}
+
+	// Guard Stun-gun ability
+	private bool stun(Entity subject, Vector2 targetPosition, params object[] args)
+	{
+		((Entity)args [0]).setStunned (true);
 		return true;
 	}
 
