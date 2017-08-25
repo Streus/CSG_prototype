@@ -15,7 +15,7 @@ public class Player : Controller
 	[SerializeField]
 	private KeyCode key_right;
 	[SerializeField]
-	private KeyCode useAbility;
+	private KeyCode use_ability;
 	[SerializeField]
 	private string abilityName;
 
@@ -43,7 +43,7 @@ public class Player : Controller
 	private void updatePrime()
 	{
 		//invoke abilities
-		if (Input.GetKey (useAbility)) //TODO swap for proper bindings later
+		if (Input.GetKey (use_ability)) //TODO swap for proper bindings later
 			useAbility (0, Vector2.zero);
 	}
 

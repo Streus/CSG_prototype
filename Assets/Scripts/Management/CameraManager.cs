@@ -31,7 +31,7 @@ public class CameraManager : MonoBehaviour
 		if (scene_cam == null)
 			scene_cam = this;
 		else
-			Debug.LogError ("More than one rig in the scene, dummy"); //DEBUG
+			Debug.LogError ("More than one rig in the scene, careful"); //DEBUG
 
 		cam = transform.GetChild (0);
 

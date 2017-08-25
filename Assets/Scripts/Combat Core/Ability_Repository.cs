@@ -28,7 +28,20 @@ public partial class Ability
 	// Proto-hack ability
 	private bool interact(Entity subject, Vector2 targetPosition, params object[] args)
 	{
-		return true; //TODO
+		RaycastHit2D hit;
+		hit = Physics2D.BoxCast (subject.transform.position, Vector2.one, 0f, Vector2.zero, 0f, 1 << 8);
+
+		if (hit.collider == null)
+			return false;
+
+		Interactable i = hit.collider.GetComponent<Interactable> ();
+		if (i != null)
+		{
+			i.OnInteract ();
+		}
+		else
+			return false;
+		return true;
 	}
 
 	/* Prereq Checks */

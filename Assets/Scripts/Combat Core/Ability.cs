@@ -162,8 +162,12 @@ public partial class Ability : ISerializable
 		if (check != null && !check (subject))
 			return false;
 
-		_cooldownCurr = cooldownMax;
-		return effect (subject, targetPosition, args);
+		if (effect (subject, targetPosition, args))
+		{
+			_cooldownCurr = cooldownMax;
+			return true;
+		}
+		return false;
 	}
 
 	// For serialization

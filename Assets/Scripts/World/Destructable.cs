@@ -7,9 +7,6 @@ public class Destructable : MonoBehaviour
 {
 	/* Instance Vars */
 	[SerializeField]
-	private bool allowReset = true;
-
-	[SerializeField]
 	private float health;
 
 	/* Instance Methods */
