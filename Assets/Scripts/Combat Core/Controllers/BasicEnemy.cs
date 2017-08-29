@@ -56,7 +56,7 @@ public class BasicEnemy : Controller
 		}
 
 		RaycastHit2D hit;
-		hit = Physics2D.CircleCast (transform.position, 2f, Vector2.zero, 0f, 1 << 9);
+		hit = Physics2D.CircleCast (transform.position, 5f, Vector2.zero, 0f, 1 << 9);
 		if (hit.collider != null && hit.collider.GetComponent<Entity>() != null)
 		{
 			setState (states [1]);
@@ -72,7 +72,7 @@ public class BasicEnemy : Controller
 	}
 	private void fu_pursuit()
 	{
-		if (Vector2.Distance (transform.position, pursuitTarget.transform.position) > 4f)
+		if (Vector2.Distance (transform.position, pursuitTarget.transform.position) > 10f)
 		{
 			pursuitTarget = null;
 			setState (states [0]);
@@ -80,7 +80,7 @@ public class BasicEnemy : Controller
 
 		if (pursuitTarget != null)
 		{
-			self.movespeed.lockTo (15);
+			self.movespeed.lockTo (13);
 			move ((Vector2)pursuitTarget.transform.position);
 		}
 		else
