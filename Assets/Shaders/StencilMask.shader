@@ -1,43 +1,77 @@
-﻿Shader "Custom/StencilMask" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/StencilMask" {
 	Properties {
-		_MainTex ("Albedo (RGB)", 2D) = "white" {}
+		_Color ("Tint", Color) = (1,1,1,1)
+		_MainTex ("Sprite texture", 2D) = "white" {}
 	}
 	SubShader {
-		Tags { "RenderType"="Opaque" "Queue"="Geometry-100" }
-		ColorMask 0
+		Tags {
+			"RenderType"="Transparent"
+			"Queue"="Transparent"
+			"IgnoreProjector"="True"
+			"PreviewType"="Plane"
+			"CanUseSpriteAtlas"="True"
+		}
+
+		Cull off
+		Lighting off
 		ZWrite off
-		LOD 200
+		Fog{ Mode off }
+		Blend One OneMinusSrcAlpha
 
-		Stencil {
-			Ref 1
-			Pass replace
-		}
-
+		Pass{
+			Stencil{
+				Ref 2
+				Comp always
+				Pass replace
+			}
 		
-		CGPROGRAM
-		// Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Standard fullforwardshadows
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#include "UnityCG.cginc"
 
-		// Use shader model 3.0 target, to get nicer looking lighting
-		#pragma target 3.0
+			struct appdata_t
+			{
+				float4 vertex : POSITION;
+				float4 color : COLOR;
+				float3 texcoord : TEXCOORD0;
+			};
 
-		sampler2D _MainTex;
+			struct v2f
+			{
+				float4 vertex : SV_POSITION;
+				fixed4 color : COLOR;
+				half2 texcoord : TEXCOORD0;
+			};
 
-		struct Input {
-			float2 uv_MainTex;
-		};
+			fixed4 _Color;
 
-		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
-		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
-		// #pragma instancing_options assumeuniformscaling
-		UNITY_INSTANCING_CBUFFER_START(Props)
-			// put more per-instance properties here
-		UNITY_INSTANCING_CBUFFER_END
+			v2f vert(appdata_t IN)
+			{
+				v2f OUT;
+				OUT.vertex = UnityObjectToClipPos(IN.vertex);
+				OUT.texcoord = IN.texcoord;
+				OUT.color = IN.color * _Color;
 
-		void surf (Input IN, inout SurfaceOutputStandard o) {
+				return OUT;
+			}
 
+			sampler2D _MainTex;
+
+			fixed4 frag(v2f IN) : SV_Target
+			{
+				fixed4 c = tex2D(_MainTex, IN.texcoord) * IN.color;
+				c.rgb *= c.a;
+
+				if(c.a < 0.1)
+					discard;
+
+				return c;
+			}
+
+			ENDCG
 		}
-		ENDCG
 	}
-	FallBack "Diffuse"
 }
