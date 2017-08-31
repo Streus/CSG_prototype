@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BasicEnemy : Controller
 {
@@ -10,8 +11,12 @@ public class BasicEnemy : Controller
 	[SerializeField]
 	private GameObject[] patrolPoints;
 	private int currentPoint;
-
 	private GameObject pursuitTarget;
+	private Vector2 distractTarget;
+
+	[SerializeField]
+	private float waitTime = 0f;
+	private float distractTime = 5f;
 
 	private Vector2 direction;
 
@@ -20,8 +25,10 @@ public class BasicEnemy : Controller
 	{
 		base.Awake ();
 		states = new BehaviorState[] {
-			new BehaviorState("patrolling", this.u_patrol, this.fu_patrol, this.lu_default),
-			new BehaviorState("pursuit", this.u_pursuit, this.fu_pursuit, this.lu_default)
+			new BehaviorState("patrolling", this.u_default, this.fu_patrol, this.lu_default),
+			new BehaviorState("pursuit", this.u_pursuit, this.fu_pursuit, this.lu_default),
+			new BehaviorState("distracted", this.u_default, this.fu_distracted, this.lu_default),
+			new BehaviorState("wait", this.u_wait, this.fu_default, this.lu_default)
 		};
 		setState (states [0]);
 	}
@@ -32,16 +39,11 @@ public class BasicEnemy : Controller
 	}
 
 	/* BehaviorState Methods */
-	private void lu_default()
-	{
-
-	}
+	private void u_default(){ }
+	private void fu_default(){ }
+	private void lu_default(){ }
 
 	// --- Patrolling ---
-	private void u_patrol()
-	{
-
-	}
 	private void fu_patrol()
 	{
 		Vector2 movementVector = Vector2.zero;
@@ -56,7 +58,7 @@ public class BasicEnemy : Controller
 		}
 
 		RaycastHit2D hit;
-		hit = Physics2D.CircleCast (transform.position, 2f, Vector2.zero, 0f, 1 << 9);
+		hit = Physics2D.CircleCast (transform.position, 4f, Vector2.zero, 0f, 1 << 9);
 		if (hit.collider != null && hit.collider.GetComponent<Entity>() != null)
 		{
 			setState (states [1]);
@@ -67,8 +69,11 @@ public class BasicEnemy : Controller
 	// --- Pursuit ---
 	private void u_pursuit()
 	{
-		if (pursuitTarget != null && Vector2.Distance (transform.position, pursuitTarget.transform.position) < 0.5f)
-			useAbility (0, Vector2.zero, pursuitTarget.GetComponent<Entity> ());
+		if (pursuitTarget != null && Vector2.Distance (transform.position, pursuitTarget.transform.position) < 1f)
+		{
+			SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
+			//useAbility (0, Vector2.zero, pursuitTarget.GetComponent<Entity> ());
+		}
 	}
 	private void fu_pursuit()
 	{
@@ -80,7 +85,7 @@ public class BasicEnemy : Controller
 
 		if (pursuitTarget != null)
 		{
-			self.movespeed.lockTo (15);
+			self.movespeed.lockTo (12);
 			move ((Vector2)pursuitTarget.transform.position);
 		}
 		else
@@ -88,6 +93,35 @@ public class BasicEnemy : Controller
 			self.movespeed.unlock ();
 			setState (states [0]);
 		}
+	}
+
+	// --- Distracted ---
+	private void fu_distracted()
+	{
+		move (distractTarget);
+
+		distractTime -= Time.fixedDeltaTime;
+
+		if (Vector2.Distance (distractTarget, transform.position) < 0.5f || distractTime < 0f)
+		{
+			waitTime = 5f;
+			setState (states [3]);
+		}
+	}
+
+	// --- Wait ---
+	private void u_wait()
+	{
+		waitTime -= Time.deltaTime;
+		if (waitTime < 0)
+			setState (states [0]);
+	}
+
+	// --- Misc ---
+	public void distract(Vector2 point)
+	{
+		distractTarget = point;
+		setState (states [2]);
 	}
 
 	private void move(Vector2 targetLocation)
