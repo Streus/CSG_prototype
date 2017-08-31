@@ -90,7 +90,12 @@ public class Bullet : MonoBehaviour
 		Entity e = col.GetComponent<Entity> ();
 		Destructable d = col.GetComponent<Destructable> ();
 
-		if (e != null)
+		if (col.tag == "indes")
+		{
+			OnHit (col);
+			OnDeath ();
+		}
+		else if (e != null)
 		{
 			if (faction != e.getFaction ())
 			{
@@ -116,7 +121,7 @@ public class Bullet : MonoBehaviour
 	{
 
 	}
-	protected void OnHit(Collider2D col)
+	protected virtual void OnHit(Collider2D col)
 	{
 		OnEntHit (col, null);
 	}

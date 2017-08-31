@@ -6,10 +6,11 @@ namespace Bullets
 {
 	public class SleepDart : Bullet
 	{
-		protected override void OnEntHit (Collider2D col, Entity hit)
+		protected override void OnHit (Collider2D col)
 		{
-			base.OnEntHit (col, hit);
-			hit.setSleeping (true);
+			base.OnHit (col);
+
+			Instantiate(Resources.Load<GameObject> ("Prefabs/Bullets/NoiseMaker"), transform.position, Quaternion.identity);
 		}
 	}
 }
